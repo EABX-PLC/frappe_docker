@@ -99,8 +99,10 @@ services:
     command:
       - >
         wait-for-it -t 120 db:3306;
+        cd /home/frappe/frappe-bench;
         bench get-app --skip-assets helpdesk https://github.com/frappe/helpdesk;
-        echo "Helpdesk app installed";
+        bench --site frontend install-app helpdesk || echo "Will try to install helpdesk app later";
+        echo "Helpdesk app setup complete";
 
   db:
     image: mariadb:10.6
