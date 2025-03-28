@@ -7,4 +7,4 @@ USER frappe
 WORKDIR /home/frappe/frappe-bench
 
 # Install Helpdesk app
-RUN bench get-app helpdesk https://github.com/frappe/helpdesk
+RUN bench get-app --branch main helpdesk https://github.com/frappe/helpdesk
