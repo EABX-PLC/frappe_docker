@@ -150,26 +150,6 @@ services:
     ports:
       - "8080:8080"
 
-  install-helpdesk:
-    image: frappe/erpnext:v15.55.2
-    networks:
-      - frappe_network
-    deploy:
-      restart_policy:
-        condition: none
-    depends_on:
-      - create-site
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        bench get-app helpdesk https://github.com/frappe/helpdesk;
-        bench --site frontend install-app helpdesk;
-
   queue-long:
     image: frappe/erpnext:v15.55.2
     networks:
