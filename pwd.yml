@@ -50,9 +50,11 @@ services:
     image: frappe/erpnext:v15.55.2
     networks:
       - frappe_network
+    depends_on:
+      - helpdesk-installer
     deploy:
       restart_policy:
-        condition: none
+        condition: on-failure
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -77,8 +79,28 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-        bench get-app helpdesk https://github.com/frappe/helpdesk;
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --install-app helpdesk --set-default frontend;
+
+  helpdesk-installer:
+    image: frappe/erpnext:v15.55.2
+    networks:
+      - frappe_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - db
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        wait-for-it -t 120 db:3306;
+        bench get-app --skip-assets helpdesk https://github.com/frappe/helpdesk;
+        echo "Helpdesk app installed";
 
   db:
     image: mariadb:10.6
@@ -127,6 +149,26 @@ services:
       - logs:/home/frappe/frappe-bench/logs
     ports:
       - "8080:8080"
+
+  install-helpdesk:
+    image: frappe/erpnext:v15.55.2
+    networks:
+      - frappe_network
+    deploy:
+      restart_policy:
+        condition: none
+    depends_on:
+      - create-site
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        bench get-app helpdesk https://github.com/frappe/helpdesk;
+        bench --site frontend install-app helpdesk;
 
   queue-long:
     image: frappe/erpnext:v15.55.2
