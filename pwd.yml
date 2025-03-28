@@ -50,9 +50,11 @@ services:
     image: frappe/erpnext:v15.55.2
     networks:
       - frappe_network
+    depends_on:
+      - helpdesk-installer
     deploy:
       restart_policy:
-        condition: none
+        condition: on-failure
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -85,10 +87,12 @@ services:
       - frappe_network
     deploy:
       restart_policy:
-        condition: none
+        condition: on-failure
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - db
     entrypoint:
       - bash
       - -c
